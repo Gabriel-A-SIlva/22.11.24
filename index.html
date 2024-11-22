@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .bolinha {
+            width: 20px;
+            height: 20px;
+            background-color: green; /* Padrão verde para aberto */
+            border-radius: 50%;
+            display: inline-block; /* Exibir como bloco em linha */
+            vertical-align: middle; /* Alinhar verticalmente ao meio do texto */
+            margin-left: 5px; /* Espaço à esquerda da bolinha */
+        }
+
+        .welcome-background {
+            display: flex;
+            justify-content: center; /* Alinha horizontalmente */
+            align-items: center; /* Alinha verticalmente */
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+            background: rgba(0, 0, 0, 0.5); /* Sobreposição preta semi-transparente */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+            z-index: 9999999;
+            display: none; /* Inicialmente escondido */
+        }
+        
+
+        .container-txt {
+            text-align: center;
+            width: 100%;
+        }
+
+        .welcome-text {
+            color: #fff; /* Branco para melhor contraste */
+            font-size: 28px;
+            white-space: pre;
+            position: relative;
+            z-index: 1; /* Garante que o texto fique acima */
+        }
+        
+
+        @keyframes pop {
+            0% {
+                transform: scale(0);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1e1e1b, #6c63ff);
+            color: #fff;
+        }
+
+        .audio-player {
+            width: 90%; /* Ajuste para telas menores */
+            max-width: 350px;
+            background: #1e1e1b;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .audio-player h1 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 200px;
+            background: #333;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .cover-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            font-size: 24px;
+            background: #6c63ff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            padding: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #5148cc;
+        }
+
+        .volume-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            margin: 0 10px;
+            -webkit-appearance: none;
+            background: #555;
+            border-radius: 5px;
+            height: 5px;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #6c63ff;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            margin-top: 10px;
+        }
+
+        .progress-bar input {
+            width: 100%;
+            -webkit-appearance: none;
+            background: #555;
+            height: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .progress-bar input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #6c63ff;
+        }
+
+        .song-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #fff;
+        }
+        .song-list {
+            width: 90%; /* Alinha com a largura do player de áudio */
+            max-width: 350px;
+            background: #1e1e1b; /* Cor de fundo consistente com o player */
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            margin-top: 20px; /* Espaçamento acima */
+            color: #fff;
+        }
+        
+        .song-list h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #fff; /* Mesma cor usada para títulos */
+        }
+        
+        .song-list ul {
+            list-style: none; /* Remove os marcadores padrão */
+            padding: 0;
+            margin: 0;
+        }
+        
+        .song-list li {
+            background: #333; /* Cor de fundo semelhante ao da capa */
+            margin: 10px 0; /* Espaçamento entre os itens */
+            padding: 10px;
+            border-radius: 10px;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: flex; /* Para alinhar ícone e texto */
+            align-items: center;
+            justify-content: space-between; /* Alinha texto e botão */
+        }
+        
+        .song-list li:hover {
+            background: #5148cc; /* Cor de destaque ao passar o mouse */
+            transform: scale(1.02); /* Pequeno zoom */
+        }
+        
+        .song-list li .song-title {
+            font-size: 14px;
+            color: #fff;
+            flex: 1; /* Permite ajuste flexível do texto */
+            text-align: left;
+            margin-right: 10px;
+        }
+        
+        .song-list li .play-btn {
+            font-size: 16px;
+            background: #6c63ff; /* Botão semelhante aos outros */
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            padding: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .song-list li .play-btn:hover {
+            background: #5148cc; /* Cor de hover para o botão */
+        }
+/* Responsividade para iPhone 8 Plus */
+@media screen and (max-width: 414px) {
+    body {
+        padding: 5px; /* Garante espaçamento nas laterais */
+    }
+
+    .audio-player {
+        width: 100%; /* Ocupa toda a largura disponível */
+        padding: 15px; /* Reduz a margem */
+    }
+
+    .cover-image {
+        height: 250px; /* Aumenta a altura da imagem */
+    }
+
+    .btn {
+        font-size: 20px; /* Reduz tamanho dos botões */
+        padding: 8px;
+    }
+
+    .song-info {
+        font-size: 12px; /* Ajuste do texto */
+    }
+}
+</style>
+</head>
+<body>
+    <div class="welcome-background main-containerA">
+        <div class="container-txt">
+            <div id="text" class="welcome-text"></div>
+        </div>
+    </div>
+    <div class="audio-player">
+        <h1>Tocador de Música</h1>
+        <div class="cover-image">
+            <img id="cover-img" src="" alt="Imagem da Música" />
+        </div>
+        
+        <audio id="audio-player" src=""></audio>
+        <div class="song-info">Reproduzindo: <strong id="current-song">Nenhuma música selecionada</strong></div>
+        <div class="progress-bar">
+            <input id="progress" type="range" min="0" max="100" value="0">
+        </div>
+        <div class="controls">
+            <button id="play-pause" class="btn">▶️</button>
+        </div>
+    </div>
+    <div class="song-list">
+        <h2>Lista de Músicas</h2>
+        <ul id="music-list">
+            <!-- As músicas serão carregadas aqui dinamicamente -->
+        </ul>
+    </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const audioPlayer = document.getElementById('audio-player');
+                const playPauseBtn = document.getElementById('play-pause');
+                const progressBar = document.getElementById('progress');
+                const currentSongInfo = document.getElementById('current-song');
+                const musicListElement = document.getElementById('music-list');
+                const coverImage = document.getElementById('cover-img'); // Pega a imagem de capa
+                let isPlaying = false;
+            
+                const welcome = document.querySelector('.welcome-background');
+                const emoji = "\uD83D\uDE00"; // Smile emoji
+                const fullText = `Olá, meu amor!\nSeja Bem-Vinda!\n${emoji}`;
+                let index = 0;
+            
+                const textElement = document.getElementById('text');
+                const mainContainer = document.querySelector('.main-containerA');
+            
+                // Mostra a tela de boas-vindas
+                welcome.style.display = 'flex';
+            
+                // Função para digitar o texto com animação
+                function typeText() {
+                    if (index < fullText.length) {
+                        const char = fullText.charAt(index);
+                        textElement.innerHTML += char === '\n' ? '<br>' : char;
+                        index++;
+                        setTimeout(typeText, 100);
+                    } else {
+                        setTimeout(() => {
+                            mainContainer.style.display = 'none';
+                        }, 2000);
+                    }
+                }
+            
+                // Inicia a digitação
+                typeText();
+            
+                // Lista de músicas (agora com imagens)
+                const songs = [
+                    { title: "Tarde Serena", src: "audio1.mp3", image: "img1.png" },
+
+                    { title: "Você mudou tudo", src: "Você mudou tudo.mp3", image: "img2.png" },
+
+                    { title: "18.11.24", src: "audio2.mp3", image: "img3.png" },
+
+                    { title: "18.11.24", src: "audio3.mp3", image: "img4.png" },
+
+                    { title: "Soneto XII amor singular", src: "Soneto XII amor singular.mp3", image: "img5.png" },
+
+                    { title: "Estrela Guia", src: "estrela guia.mp3", image: "img6.png" },
+                    { title: "A biologia do Nosso Amor", src: "A biologia do Nosso Amor.mp3", image: "img7.png" },
+                    { title: "Amemos", src: "amemos.mp3", image: "img8.png" },
+                    { title: "Amo amar você", src: "amo amo amar você.mp3", image: "img9.png" },
+                    { title: "Amor antigo", src: "Amor antigo.mp3", image: "img10.png" },
+                    { title: "Amor divino", src: "amor divino.mp3", image: "img11.png" },
+                    { title: "Amor inevitável part.1", src: "Amor inevitavil part 1.mp3", image: "img12.png" },
+                    { title: "amor inexplicável part.2", src: "amor inexplicalvil.mp3", image: "img13.png" },
+                    { title: "A solitude do mar e a reverberação", src: "A solirude do mar e a reverberação do Amor.mp3", image: "img14.png" },
+                    { title: "Cheia do Espírito", src: "cheia do Espírito.mp3", image: "img15.png" },
+                    { title: "Do delírio ao Lírio", src: "Do delírio ao Lírio.mp3", image: "img16.png" },
+                    { title: "Eclipse é a união de corpos celestes", src: "Eclipse é a união de corpos celestes.mp3", image: "img17.png" },
+                    { title: "Eu te amo mais", src: "Eu te amo mais.mp3", image: "img18.png" },
+                    { title: "Jardineiro e seu jardim", src: "Jardineiro e seu jardim.mp3", image: "img19.png" },
+                    { title: "O bom perfume", src: "O bom perfume.mp3", image: "img20.png" },
+                    { title: "O clichê do Poeta", src: "O cliche do Poeta.mp3", image: "img21.png" },
+                    { title: "O Mundo jurídico do nosso amor", src: "o Mundo juridico do nosso amor.mp3", image: "img22.png" },
+                    { title: "O que dizer do amor", src: "O que dizer do amor.mp3", image: "img23.png" },
+                    { title: "Plebeu e sua realeza", src: "plebeu e sua realeza.mp3", image: "img24.png" },
+                    { title: "Simplesmente castanhos", src: "Simplemente castanhos.mp3", image: "img25.png" },
+                    { title: "Soneto XI amor velho", src: "Soneto XI amor velho.mp3", image: "img26.png" },
+                    { title: "Soneto XII Amor", src: "Soneto XII Amor.mp3", image: "img27.png" },
+                    { title: "Ternura longínqua", src: "ternura longíqua.mp3", image: "img28.png" },
+                    { title: "Unidos por um propósito", src: "Unidos por um próposito.mp3", image: "img29.png" },
+                ];
+
+            
+                // Função para criar a lista de músicas
+                function loadMusicList() {
+                    songs.forEach((song, index) => {
+                        const li = document.createElement('li');
+                        li.textContent = `${index + 1}. ${song.title}`;
+                        li.setAttribute('data-src', song.src);
+                        li.setAttribute('data-image', song.image); // Adiciona a imagem
+                        li.classList.add('music-item');
+                        li.addEventListener('click', () => playSong(song)); // Chama playSong ao clicar
+                        musicListElement.appendChild(li);
+                    });
+                }
+            
+                // Função para reproduzir uma música
+                function playSong(song) {
+                    audioPlayer.src = song.src; // Define a música no player
+                    currentSongInfo.textContent = song.title; // Atualiza o título da música
+                    coverImage.src = song.image; // Atualiza a imagem de capa
+                    audioPlayer.play(); // Reproduz automaticamente
+                    playPauseBtn.textContent = '⏸️'; // Atualiza o botão para "pausar"
+                    isPlaying = true;
+                }
+            
+                // Play/Pause funcionalidade
+                playPauseBtn.addEventListener('click', () => {
+                    if (isPlaying) {
+                        audioPlayer.pause();
+                        playPauseBtn.textContent = '▶️';
+                    } else {
+                        audioPlayer.play();
+                        playPauseBtn.textContent = '⏸️';
+                    }
+                    isPlaying = !isPlaying;
+                });
+            
+                // Atualização da barra de progresso
+                audioPlayer.addEventListener('timeupdate', () => {
+                    if (audioPlayer.duration) {
+                        progressBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                    }
+                });
+            
+                // Funcionalidade de busca
+                progressBar.addEventListener('input', (e) => {
+                    audioPlayer.currentTime = (e.target.value / 100) * audioPlayer.duration;
+                });
+            
+                // Carrega a lista de músicas
+                loadMusicList();
+            });
+        </script>
+</body>
+</html>
